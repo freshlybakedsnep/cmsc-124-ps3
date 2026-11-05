@@ -12,28 +12,28 @@ wrongly. Say what you predicted, what CLISP printed, and which rule you
 misread. Those entries belong in the correction commits.
 
 ## P01
-Replace this line with the rule behind this case's four fields.
+`+` and `*` are functions as defined by LISP. Each element is evaluated first before the function is executed (`+` then `*`).  
 
 ## P02
-Replace this line with the rule behind this case's four fields.
+`QUOTE` or `'` returns an object unevaluated. It is a special-operator according to the glossary.
 
 ## P03
-Replace this line with the rule behind this case's four fields.
+`NIL` is a symbol that represents an empty list, false, and the null type. 
 
 ## P04
-Replace this line with the rule behind this case's four fields.
+`t` is a symbol that represents the truth boolean value.  
 
 ## P05
-Replace this line with the rule behind this case's four fields.
+`SYMBOLP` returns a generalized boolean, `true` if object is of type symbol; `false` if otherwise. `NIL` is a symbol, therefore `SYMBOLP` returns true or in this case `t`
 
 ## P06
-Replace this line with the rule behind this case's four fields.
+Returns the  first argument of a `cons`. The list is empty, therefore returns the `nil` symbol.
 
 ## P07
-Replace this line with the rule behind this case's four fields.
+A function that creates a new `cons` object. Flattens sub-lists into the new generated list.
 
 ## P08
-Replace this line with the rule behind this case's four fields.
+Special-operator `IF` evaluates the expression: selects the `then-form` if true; otherwise `else-form` is selected. Whichever selected form is evaluated and returned. 
 
 ## P09
 Replace this line with the rule behind this case's four fields.
