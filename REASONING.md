@@ -36,25 +36,25 @@ A function that creates a new `cons` object. Flattens sub-lists into the new gen
 Special-operator `IF` evaluates the expression: selects the `then-form` if true; otherwise `else-form` is selected. Whichever selected form is evaluated and returned. 
 
 ## P09
-Replace this line with the rule behind this case's four fields.
+`AND` evaluates each form one at a time from left to right. If all forms are true values, returns the results produced by evaluating the last form. Otherwise, short-circuits and returns `NIL`. Since a form here is not a true value, it returns `NIL`.
 
 ## P10
-Replace this line with the rule behind this case's four fields.
+Special operator `PROGN` evaluates forms in the order they are given. `DEFVAR` and `DEFFUN` are built-in lisp implementations (macros) for variable and function declaration. Accessing variables wrapped with `*` returns its most recent value. Therefore, ps3-scale uses the most recent ps3-rate value (10) and evaluates to 30. 
 
 ## P11
-Replace this line with the rule behind this case's four fields.
+`DEFUN` is a macro that returns an object of the function declared; it returns a symbol that acts as identifier which binds the defined function to the object. 
 
 ## P12
-Replace this line with the rule behind this case's four fields.
+Special operator `labels` defines and executes a function whose scope encompasses only within the body and returns the last expression evaluated. `down` defined here is a recursive local function, which returns a list that may include a form from recursively calling itself. Each call runs `cons` which flattens the retrieved list from an inner recursive call into its own created list of the same level. 
 
 ## P13
-Replace this line with the rule behind this case's four fields.
+Function `MAPCAR` maps a list and involves applying a function to its arguments; the final result contains the results returned by the function on each argument. `#'` is a special operator short-hand abbreviation for a function, hence `#'length` is treated as a function and is applied to each argument in the list.
 
 ## P14
-Replace this line with the rule behind this case's four fields.
+Same logic as P13 but uses the macro `LAMBDA` or anonymous function instead, which executes each form and constructs a list from the results of the anonymous function.
 
 ## P15
-Replace this line with the rule behind this case's four fields.
+Macro `LAMBDA` provides a shorthand notation for a function special form involving a lambda expression; basically an anonymous function builder that returns a function object, and executes at compile time by running the expanded code.
 
 ## P16
-Replace this line with the rule behind this case's four fields.
+Special operator `LET` creates new variable bindings and executes those bindings in parallel; it computes its values using only from its existing environment, where it remains unaffected to changes to its environment after evaluation. Thus, when `f` was called, it uses `factor 2` instead of the later `factor 10` since `f`'s environment only saw `factor 2` on its evaluation.
