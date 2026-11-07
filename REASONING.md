@@ -16,6 +16,7 @@ misread. Those entries belong in the correction commits.
 
 ## P02
 `QUOTE` or `'` returns an object unevaluated. It is a special-operator according to the glossary.
+correction: miscounted length of list
 
 ## P03
 `NIL` is a symbol that represents an empty list, false, and the null type. 
@@ -28,15 +29,18 @@ misread. Those entries belong in the correction commits.
 
 ## P06
 Returns the  first argument of a `cons`. The list is empty, therefore returns the `nil` symbol.
+correction: listed operator was for the produced `NIL` symbol instead of the `CAR`'s
 
 ## P07
 A function that creates a new `cons` object. Flattens sub-lists into the new generated list.
 
 ## P08
 Special-operator `IF` evaluates the expression: selects the `then-form` if true; otherwise `else-form` is selected. Whichever selected form is evaluated and returned. 
+correction: listed operator was for the produced symbol instead of the expression
 
 ## P09
 `AND` evaluates each form one at a time from left to right. If all forms are true values, returns the results produced by evaluating the last form. Otherwise, short-circuits and returns `NIL`. Since a form here is not a true value, it returns `NIL`.
+correction: listed operator was for the `NIL` symbol returned after evaluation instead of the `AND`'s
 
 ## P10
 Special operator `PROGN` evaluates forms in the order they are given. `DEFVAR` and `DEFFUN` are built-in lisp implementations (macros) for variable and function declaration. Accessing variables wrapped with `*` returns its most recent value. Therefore, ps3-scale uses the most recent ps3-rate value (10) and evaluates to 30. 
@@ -54,7 +58,7 @@ Function `MAPCAR` maps a list and involves applying a function to its arguments;
 Same logic as P13 but uses the macro `LAMBDA` or anonymous function instead, which executes each form and constructs a list from the results of the anonymous function.
 
 ## P15
-Macro `LAMBDA` provides a shorthand notation for a function special form involving a lambda expression; basically an anonymous function builder that returns a function object, and executes at compile time by running the expanded code.
+Macro `LAMBDA` provides a shorthand notation for a function special form involving a lambda expression; basically an anonymous function builder that returns a function object, and executes at compile time by running the expanded code. 
 
 ## P16
 Special operator `LET` creates new variable bindings and executes those bindings in parallel; it computes its values using only from its existing environment, where it remains unaffected to changes to its environment after evaluation. Thus, when `f` was called, it uses `factor 2` instead of the later `factor 10` since `f`'s environment only saw `factor 2` on its evaluation.
