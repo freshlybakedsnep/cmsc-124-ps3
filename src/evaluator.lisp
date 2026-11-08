@@ -94,22 +94,41 @@ in parallel and an init cannot see a name the same LET introduces."
 ;;; E4 -- lambda and application.
 
 (defun make-closure (params body env)
-  "A closure over ENV.
+	"A closure over ENV.
 
 Return the list (:closure params body env). ENV is the environment the lambda
 was written in, not the one it will later be called from. Saving the wrong one
 is what makes the difference between 3 and 101 in the case the manual walks
 through."
-  (declare (ignore params body env))
-  (error "make-closure is not implemented"))
+
+	;; just create a list
+	;; first element as a tag using the closure keyword
+	;; retain remaining elements as they are
+	(list :closure params body env))
 
 (defun apply-closure (closure args)
-  "Run CLOSURE on ARGS.
+	"Run CLOSURE on ARGS.
 
 The parameters join the environment the closure captured. Signal an error when
 CLOSURE is not a closure, and when the argument count does not match."
-  (declare (ignore closure args))
-  (error "apply-closure is not implemented"))
+
+	(cond
+		;; check if closure is a closure
+		((not (and (consp closure) (eq (car closure) :closure))) (error "Not a closure"))
+		;; check if arguments match
+		((/= (length (cadr closure)) (length args)) (error "Argument count mismatch"))
+
+		;; default
+		(t 	; extract parameters from closure
+			(let* (	(params 	(cadr closure))
+					(body 		(caddr closure))
+					(saved-env	(cadddr closure))
+
+					;; create a local-scope env for the provided values
+					(ext-env	(extend-env params args saved-env)))
+
+				;; execute using the body and the local-scope env
+				(eval-expr body ext-env)))))
 
 ;;; The dispatcher.
 
@@ -133,4 +152,14 @@ number is not a cons, so the atom tests come before the list tests."
 		;; let (list AND head starts with let)
 		((and (consp expr) (eq (car expr) 'let))
 			(eval-let expr env))
-	))
+
+		;; lambda (list AND head starts with lambda)
+		((and (consp expr) (eq (car expr) 'lambda))
+			(make-closure (cadr expr) (caddr expr) env))
+
+		;; execution
+		;; evaluate closure and its arguments first
+		;; then run apply-closure to evaluated variables
+		(t (let	(	(closure (eval-expr (car expr) env))
+					(args (eval-operands (cdr expr) env)))
+				(apply-closure closure args)))))
