@@ -22,12 +22,20 @@
 ;;; E1 -- numbers and symbols.
 
 (defun lookup (name env)
-  "The value NAME is bound to in ENV.
+	"The value NAME is bound to in ENV.
 
 The first match wins, so an inner binding shadows an outer one that shares its
 name. Signal an error when NAME is not bound at all."
-  (declare (ignore name env))
-  (error "lookup is not implemented"))
+
+	(cond
+		;;; if env is empty 
+		((null env) (error "Unbound symbol: ~a" name))
+		
+		;;; else-if name matches first element
+		((eq (car (car env)) name) (cdr (car env)))
+
+		;;; else recurse with next element
+		(t (lookup name (cdr env)))))
 
 ;;; E2 -- prefix arithmetic.
 
@@ -87,9 +95,14 @@ CLOSURE is not a closure, and when the argument count does not match."
 ;;; The dispatcher.
 
 (defun eval-expr (expr env)
-  "The value of EXPR in ENV.
+	"The value of EXPR in ENV.
 
 Order the branches with care. NIL is a symbol as well as the empty list, and a
 number is not a cons, so the atom tests come before the list tests."
-  (declare (ignore expr env))
-  (error "eval-expr is not implemented"))
+
+	(cond
+		;;; number
+		((numberp expr) expr)
+
+		;;; symbol
+		((symbolp expr) (lookup expr env))))
