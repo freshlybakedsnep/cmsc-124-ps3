@@ -28,13 +28,13 @@ The first match wins, so an inner binding shadows an outer one that shares its
 name. Signal an error when NAME is not bound at all."
 
 	(cond
-		;;; if env is empty 
+		;; if env is empty 
 		((null env) (error "Unbound symbol: ~a" name))
 		
-		;;; else-if name matches first element
+		;; else-if name matches first element
 		((eq (car (car env)) name) (cdr (car env)))
 
-		;;; else recurse with next element
+		;; else recurse with next element
 		(t (lookup name (cdr env)))))
 
 ;;; E2 -- prefix arithmetic.
@@ -45,7 +45,7 @@ name. Signal an error when NAME is not bound at all."
 MAPCAR and a LAMBDA do this in one line. Watch the arity: EVAL-EXPR takes two
 arguments and MAPCAR hands its function one."
 
-	;;;	basically runs eval-expr for each x in exprs
+	;;	basically runs eval-expr for each x in exprs
 	(mapcar (lambda (x) (eval-expr x env)) exprs))
 
 (defun apply-op (op values)
@@ -53,9 +53,9 @@ arguments and MAPCAR hands its function one."
 
 OP is the symbol +, -, or *. Signal an error for anything else."
 
-	;;; switch case
-	;;; #' fetches the equivalent function 
-	;;; then apply the function to said values
+	;; switch case
+	;; #' fetches the equivalent function 
+	;; then apply the function to said values
 	(case op
 		(+ (apply #'+ values))
 		(- (apply #'- values))
@@ -109,13 +109,13 @@ Order the branches with care. NIL is a symbol as well as the empty list, and a
 number is not a cons, so the atom tests come before the list tests."
 
 	(cond
-		;;; number
+		;; number
 		((numberp expr) expr)
 
-		;;; symbol
+		;; symbol
 		((symbolp expr) (lookup expr env))
 		
-		;;; arithmetic (list AND head starts with +|-|*)
+		;; arithmetic (list AND head starts with +|-|*)
 		((and (consp expr) (member (car expr) '(+ - *)))
 			(apply-op (car expr) (eval-operands (cdr expr) env)))
 	))
