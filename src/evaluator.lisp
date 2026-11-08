@@ -40,19 +40,27 @@ name. Signal an error when NAME is not bound at all."
 ;;; E2 -- prefix arithmetic.
 
 (defun eval-operands (exprs env)
-  "Every expression in EXPRS, evaluated in the same ENV, as a list.
+	"Every expression in EXPRS, evaluated in the same ENV, as a list.
 
 MAPCAR and a LAMBDA do this in one line. Watch the arity: EVAL-EXPR takes two
 arguments and MAPCAR hands its function one."
-  (declare (ignore exprs env))
-  (error "eval-operands is not implemented"))
+
+	;;;	basically runs eval-expr for each x in exprs
+	(mapcar (lambda (x) (eval-expr x env)) exprs))
 
 (defun apply-op (op values)
-  "Apply the arithmetic operator OP to the two numbers in VALUES.
+	"Apply the arithmetic operator OP to the two numbers in VALUES.
 
 OP is the symbol +, -, or *. Signal an error for anything else."
-  (declare (ignore op values))
-  (error "apply-op is not implemented"))
+
+	;;; switch case
+	;;; #' fetches the equivalent function 
+	;;; then apply the function to said values
+	(case op
+		(+ (apply #'+ values))
+		(- (apply #'- values))
+		(* (apply #'* values))
+		(t (error "Invalid arithmetic operator ~a" op))))
 
 ;;; E3 -- let.
 
@@ -105,4 +113,9 @@ number is not a cons, so the atom tests come before the list tests."
 		((numberp expr) expr)
 
 		;;; symbol
-		((symbolp expr) (lookup expr env))))
+		((symbolp expr) (lookup expr env))
+		
+		;;; arithmetic (list AND head starts with +|-|*)
+		((and (consp expr) (member (car expr) '(+ - *)))
+			(apply-op (car expr) (eval-operands (cdr expr) env)))
+	))
