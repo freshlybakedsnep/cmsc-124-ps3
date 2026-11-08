@@ -65,20 +65,31 @@ OP is the symbol +, -, or *. Signal an error for anything else."
 ;;; E3 -- let.
 
 (defun extend-env (params args env)
-  "ENV with PARAMS bound to ARGS in front of it.
+	"ENV with PARAMS bound to ARGS in front of it.
 
 MAPCAR takes two lists and #'CONS pairs them. Build a new list. Do not modify
 ENV, because the caller keeps using it after the extension goes out of scope."
-  (declare (ignore params args env))
-  (error "extend-env is not implemented"))
+
+	;; append creates a new list
+	(append (mapcar #'cons params args) env))
 
 (defun eval-let (expr env)
-  "Evaluate (let ((name init) ...) body).
+	"Evaluate (let ((name init) ...) body).
 
 Every init is evaluated in ENV before any name is bound, so the bindings happen
 in parallel and an init cannot see a name the same LET introduces."
-  (declare (ignore expr env))
-  (error "eval-let is not implemented"))
+	
+	;; used let* so it sequentially creates variables (allows usage for subsequent declarations)
+	(let* (	(bindings (cadr expr)) 				; 2nd element of expr
+			(params	(mapcar #'car bindings)) 	; join 1st elements into a list
+			
+			;; evaluate each arg in current env first before joining into a list
+			(args 	(eval-operands (mapcar #'cadr bindings) env)) 
+
+			(body	(caddr expr))				; 3rd element of expr
+			(nenv	(extend-env params args env)))	; generate new env
+	
+		(eval-expr body nenv))) ; evaluate the new expr
 
 ;;; E4 -- lambda and application.
 
@@ -118,4 +129,8 @@ number is not a cons, so the atom tests come before the list tests."
 		;; arithmetic (list AND head starts with +|-|*)
 		((and (consp expr) (member (car expr) '(+ - *)))
 			(apply-op (car expr) (eval-operands (cdr expr) env)))
+
+		;; let (list AND head starts with let)
+		((and (consp expr) (eq (car expr) 'let))
+			(eval-let expr env))
 	))
