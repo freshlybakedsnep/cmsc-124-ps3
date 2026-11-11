@@ -10,7 +10,7 @@ Tracing the following form from E4,
            '())
 ```
 
-The lambda branch in `eval-expr` calls `(make-closure (cadr expr) (caddr expr) env)`, which captures the defining environment, `env`. The outer `let` extends the environment with `x = 2`. When the next `let` evaluates the lambda, `make-closure` captures `((x . 2))` and `f` is bound to `(:closure (y) (+ x y) ((x . 2)))`. The final `let` adds `x = 100` only to its own body environment.
+The lambda branch in `eval-expr` calls `(make-closure (cadr expr) (caddr expr) env)`, which captures the defining environment, `env`. The outer `let` extends the environment with `x = 2`. When the next `let` evaluates the lambda, `make-closure` captures `((x . 2))` and `f` is bound to `(:closure (y) (+ x y) ((x . 2)))`. The final `let` extends the current environment to `((x . 100) (f . closure) (x . 2))`. The body `(f 1)` is called from this extended environment, and it exists only while the body runs.
 
 When `(f 1)` runs, `eval-expr` sends the head `f` through `lookup` and gets the closure back. The argument `1` is evaluated next, and then `apply-closure` takes over. It ignores the caller's environment and extends the saved `((x . 2))` with `y = 1`, so `(+ x y)` returns 3. The `env` that `make-closure` saves is the one `eval-expr` holds when it meets the lambda, not the one a later call site has. Since `extend-env` builds a new list and never modifies the old one, the captured `((x . 2))` is still intact after the later `let` shadows `x`.
 
