@@ -22,74 +22,144 @@
 ;;; E1 -- numbers and symbols.
 
 (defun lookup (name env)
-  "The value NAME is bound to in ENV.
+	"The value NAME is bound to in ENV.
 
 The first match wins, so an inner binding shadows an outer one that shares its
 name. Signal an error when NAME is not bound at all."
-  (declare (ignore name env))
-  (error "lookup is not implemented"))
+
+	(cond
+		;; if env is empty 
+		((null env) (error "Unbound symbol: ~a" name))
+		
+		;; else-if name matches first element
+		((eq (car (car env)) name) (cdr (car env)))
+
+		;; else recurse with next element
+		(t (lookup name (cdr env)))))
 
 ;;; E2 -- prefix arithmetic.
 
 (defun eval-operands (exprs env)
-  "Every expression in EXPRS, evaluated in the same ENV, as a list.
+	"Every expression in EXPRS, evaluated in the same ENV, as a list.
 
 MAPCAR and a LAMBDA do this in one line. Watch the arity: EVAL-EXPR takes two
 arguments and MAPCAR hands its function one."
-  (declare (ignore exprs env))
-  (error "eval-operands is not implemented"))
+
+	;;	basically runs eval-expr for each x in exprs
+	(mapcar (lambda (x) (eval-expr x env)) exprs))
 
 (defun apply-op (op values)
-  "Apply the arithmetic operator OP to the two numbers in VALUES.
+	"Apply the arithmetic operator OP to the two numbers in VALUES.
 
 OP is the symbol +, -, or *. Signal an error for anything else."
-  (declare (ignore op values))
-  (error "apply-op is not implemented"))
+
+	;; switch case
+	;; #' fetches the equivalent function 
+	;; then apply the function to said values
+	(case op
+		(+ (apply #'+ values))
+		(- (apply #'- values))
+		(* (apply #'* values))
+		(t (error "Invalid arithmetic operator ~a" op))))
 
 ;;; E3 -- let.
 
 (defun extend-env (params args env)
-  "ENV with PARAMS bound to ARGS in front of it.
+	"ENV with PARAMS bound to ARGS in front of it.
 
 MAPCAR takes two lists and #'CONS pairs them. Build a new list. Do not modify
 ENV, because the caller keeps using it after the extension goes out of scope."
-  (declare (ignore params args env))
-  (error "extend-env is not implemented"))
+
+	;; append creates a new list
+	(append (mapcar #'cons params args) env))
 
 (defun eval-let (expr env)
-  "Evaluate (let ((name init) ...) body).
+	"Evaluate (let ((name init) ...) body).
 
 Every init is evaluated in ENV before any name is bound, so the bindings happen
 in parallel and an init cannot see a name the same LET introduces."
-  (declare (ignore expr env))
-  (error "eval-let is not implemented"))
+	
+	;; used let* so it sequentially creates variables (allows usage for subsequent declarations)
+	(let* (	(bindings (cadr expr)) 				; 2nd element of expr
+			(params	(mapcar #'car bindings)) 	; join 1st elements into a list
+			
+			;; evaluate each arg in current env first before joining into a list
+			(args 	(eval-operands (mapcar #'cadr bindings) env)) 
+
+			(body	(caddr expr))				; 3rd element of expr
+			(nenv	(extend-env params args env)))	; generate new env
+	
+		(eval-expr body nenv))) ; evaluate the new expr
 
 ;;; E4 -- lambda and application.
 
 (defun make-closure (params body env)
-  "A closure over ENV.
+	"A closure over ENV.
 
 Return the list (:closure params body env). ENV is the environment the lambda
 was written in, not the one it will later be called from. Saving the wrong one
 is what makes the difference between 3 and 101 in the case the manual walks
 through."
-  (declare (ignore params body env))
-  (error "make-closure is not implemented"))
+
+	;; just create a list
+	;; first element as a tag using the closure keyword
+	;; retain remaining elements as they are
+	(list :closure params body env))
 
 (defun apply-closure (closure args)
-  "Run CLOSURE on ARGS.
+	"Run CLOSURE on ARGS.
 
 The parameters join the environment the closure captured. Signal an error when
 CLOSURE is not a closure, and when the argument count does not match."
-  (declare (ignore closure args))
-  (error "apply-closure is not implemented"))
+
+	(cond
+		;; check if closure is a closure
+		((not (and (consp closure) (eq (car closure) :closure))) (error "Not a closure"))
+		;; check if arguments match
+		((/= (length (cadr closure)) (length args)) (error "Argument count mismatch"))
+
+		;; default
+		(t 	; extract parameters from closure
+			(let* (	(params 	(cadr closure))
+					(body 		(caddr closure))
+					(saved-env	(cadddr closure))
+
+					;; create a local-scope env for the provided values
+					(ext-env	(extend-env params args saved-env)))
+
+				;; execute using the body and the local-scope env
+				(eval-expr body ext-env)))))
 
 ;;; The dispatcher.
 
 (defun eval-expr (expr env)
-  "The value of EXPR in ENV.
+	"The value of EXPR in ENV.
 
 Order the branches with care. NIL is a symbol as well as the empty list, and a
 number is not a cons, so the atom tests come before the list tests."
-  (declare (ignore expr env))
-  (error "eval-expr is not implemented"))
+
+	(cond
+		;; number
+		((numberp expr) expr)
+
+		;; symbol
+		((symbolp expr) (lookup expr env))
+		
+		;; arithmetic (list AND head starts with +|-|*)
+		((and (consp expr) (member (car expr) '(+ - *)))
+			(apply-op (car expr) (eval-operands (cdr expr) env)))
+
+		;; let (list AND head starts with let)
+		((and (consp expr) (eq (car expr) 'let))
+			(eval-let expr env))
+
+		;; lambda (list AND head starts with lambda)
+		((and (consp expr) (eq (car expr) 'lambda))
+			(make-closure (cadr expr) (caddr expr) env))
+
+		;; execution
+		;; evaluate closure and its arguments first
+		;; then run apply-closure to evaluated variables
+		(t (let	(	(closure (eval-expr (car expr) env))
+					(args (eval-operands (cdr expr) env)))
+				(apply-closure closure args)))))
