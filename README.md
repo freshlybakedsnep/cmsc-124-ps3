@@ -7,7 +7,7 @@ Problem Set 3. The assignment manual defines the work and the submission rules.
 ## Pair
 
 - Gabrielle Sumergido (`@freshlybakedsnep`)
-- 
+- Samantha F. Mok (`@smnthmk`)
 
 ## Layout
 
